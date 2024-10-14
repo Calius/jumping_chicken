@@ -44,7 +44,7 @@ int main(int argc, char* args[]) {
     SDL_Window* window = SDL_CreateWindow("Jumping Chicken", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN);
     SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
 
-    // Lade die PNG-Bilder für das Huhn und das Ei
+    // Lade PNG-Bilder für das Huhn und das Ei
     SDL_Texture* chickenTexture = LoadTexture("chicken.png", renderer);
     SDL_Texture* eggTexture = LoadTexture("egg.png", renderer);
 
@@ -78,8 +78,8 @@ int main(int argc, char* args[]) {
             } else if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_SPACE && !isJumping) {
                 isJumping = true;
 
-                // Füge ein neues Ei an einer zufälligen Position hinzu
-                Egg newEgg = {rand() % (SCREEN_WIDTH - EGG_WIDTH), rand() % (SCREEN_HEIGHT - EGG_HEIGHT)};
+                // Platziere das Ei direkt unterhalb des Huhns
+                Egg newEgg = {chickenX + (CHICKEN_WIDTH - EGG_WIDTH) / 2, chickenY + CHICKEN_HEIGHT};
                 eggs.push_back(newEgg);
             }
         }
@@ -91,6 +91,10 @@ int main(int argc, char* args[]) {
             }
             if (jumpOffset == 0) {
                 isJumping = false;
+
+                // Nach dem Sprung: Huhn an zufällige Position setzen
+                chickenX = rand() % (SCREEN_WIDTH - CHICKEN_WIDTH);
+                chickenY = rand() % (SCREEN_HEIGHT - CHICKEN_HEIGHT);
             }
         }
 
