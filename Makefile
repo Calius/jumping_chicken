@@ -1,33 +1,23 @@
-# Name des Programms
+# Variablen für den Compiler und die Flags
+CXX = g++
+CXXFLAGS = -Wall -std=c++11
+
+# SDL2 und SDL2_mixer Bibliotheken
+SDL2_FLAGS = $(shell sdl2-config --cflags --libs) -lSDL2_image -lSDL2_mixer
+
+# Zielname
 TARGET = jumping_chicken
 
-# Compiler und Flags
-CXX = g++
-CXXFLAGS = -Wall -g
-
-# SDL2 und SDL2_image Libraries
-SDL2_CFLAGS = $(shell sdl2-config --cflags)
-SDL2_LDFLAGS = $(shell sdl2-config --libs) -lSDL2_image
-
-# Quellcode-Datei
+# Quellcode-Dateien
 SRC = jumping_chicken.cpp
 
-# Objekt-Dateien
-OBJ = $(SRC:.cpp=.o)
-
-# Regel zum Kompilieren
+# Standard-Ziel
 all: $(TARGET)
 
-$(TARGET): $(OBJ)
-	$(CXX) $(CXXFLAGS) $(OBJ) -o $(TARGET) $(SDL2_LDFLAGS)
+# Erzeuge die ausführbare Datei
+$(TARGET):
+	$(CXX) $(CXXFLAGS) $(SRC) -o $(TARGET) $(SDL2_FLAGS)
 
-%.o: %.cpp
-	$(CXX) $(CXXFLAGS) $(SDL2_CFLAGS) -c $< -o $@
-
-# Regel zum Ausführen des Programms
-run: $(TARGET)
-	./$(TARGET)
-
-# Regel zum Bereinigen
+# Bereinige die erzeugten Dateien
 clean:
-	rm -f $(OBJ) $(TARGET)
+	rm -f $(TARGET)

@@ -1,5 +1,6 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
+#include <SDL2/SDL_mixer.h>  // SDL_Mixer für Sound
 #include <vector>
 #include <cstdlib>
 #include <ctime>
@@ -36,9 +37,10 @@ void RenderTexture(SDL_Texture* texture, SDL_Renderer* renderer, int x, int y, i
 }
 
 int main(int argc, char* args[]) {
-    // SDL und SDL_Image initialisieren
-    SDL_Init(SDL_INIT_VIDEO);
+    // SDL, SDL_Image und SDL_Mixer initialisieren
+    SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO);  // SDL_INIT_AUDIO für Sound
     IMG_Init(IMG_INIT_PNG);
+    Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048);  // Audio initialisieren
     srand(static_cast<unsigned int>(time(nullptr)));
 
     SDL_Window* window = SDL_CreateWindow("Jumping Chicken", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN);
@@ -48,12 +50,20 @@ int main(int argc, char* args[]) {
     SDL_Texture* chickenTexture = LoadTexture("chicken.png", renderer);
     SDL_Texture* eggTexture = LoadTexture("egg.png", renderer);
 
+    // Lade den Sprung-Sound
+    Mix_Chunk* jumpSound = Mix_LoadWAV("jump_sound.wav");  // Lade WAV-Datei
+    if (!jumpSound) {
+        printf("Failed to load jump sound: %s\n", Mix_GetError());
+    }
+
     if (!chickenTexture || !eggTexture) {
         // Falls die Texturen nicht geladen werden konnten, Programm beenden
         printf("Failed to load textures.\n");
         SDL_DestroyRenderer(renderer);
         SDL_DestroyWindow(window);
+        Mix_FreeChunk(jumpSound);
         IMG_Quit();
+        Mix_CloseAudio();
         SDL_Quit();
         return 1;
     }
@@ -77,6 +87,11 @@ int main(int argc, char* args[]) {
                 quit = true;
             } else if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_SPACE && !isJumping) {
                 isJumping = true;
+
+                // Sprung-Sound abspielen
+                if (jumpSound) {
+                    Mix_PlayChannel(-1, jumpSound, 0);
+                }
 
                 // Platziere das Ei direkt unterhalb des Huhns
                 Egg newEgg = {chickenX + (CHICKEN_WIDTH - EGG_WIDTH) / 2, chickenY + CHICKEN_HEIGHT};
@@ -118,11 +133,13 @@ int main(int argc, char* args[]) {
     // Speicher freigeben
     SDL_DestroyTexture(chickenTexture);
     SDL_DestroyTexture(eggTexture);
+    Mix_FreeChunk(jumpSound);  // Audio-Speicher freigeben
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
 
-    // SDL_Image und SDL beenden
+    // SDL_Image und SDL_Mixer beenden
     IMG_Quit();
+    Mix_CloseAudio();
     SDL_Quit();
 
     return 0;
