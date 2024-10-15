@@ -85,7 +85,7 @@ int main(int argc, char* args[]) {
         while (SDL_PollEvent(&event) != 0) {
             if (event.type == SDL_QUIT) {
                 quit = true;
-            } else if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_SPACE && !isJumping) {
+            } else if (event.type == SDL_KEYDOWN && !isJumping) {  // Bei jedem Tastendruck
                 isJumping = true;
 
                 // Sprung-Sound abspielen
